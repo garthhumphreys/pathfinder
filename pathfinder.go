@@ -1,27 +1,50 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
+	"strings"
 )
 
 func main() {
 	/* TODO:
-		- from cli supply website url
-		- get website body
-		- search through body for links
-		- search through body for paths
-		- search through body for js extensions, .js
-		- print these to screen
+	- from cli supply website url
+	- get website body
+	- search through body for links
+	- search through body for paths
+	- search through body for js extensions, .js
+	- print these to screen
 	*/
-	var url string = "https://www.garthhumphreys.com"
-	//fmt.Println(url)
 
-	//match, _ := regexp.MatchString("p([a-z]+)ch", "peach")
-	//fmt.Println(match)
+	siteURL := flag.String("siteURL", "https://juice-shop.herokuapp.com", "a website or webpage")
+
+	flag.Parse()
+
+	if len(os.Args) < 2 {
+		fmt.Println("expected 'site url'")
+		os.Exit(1)
+	}
+
+	if *siteURL != "" {
+		fmt.Println("site url:", *siteURL)
+		findFiles(*siteURL)
+	} else {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+}
+
+func findFiles(siteurl string) {
+	url := siteurl
+	// fmt.Println(url)
+
+	// match, _ := regexp.MatchString("p([a-z]+)ch", "peach")
+	// fmt.Println(match)
 
 	var re = regexp.MustCompile(`(http(s?):)([/|.|\w|\s|-])*\.(?:js)`)
 
@@ -39,8 +62,10 @@ func main() {
 	}
 
 	for i, match := range re.FindAllString(string(html), -1) {
-		fmt.Println(match, "found at index", i)
+		if strings.Contains(match, url) {
+			fmt.Println(match, "found at index", i)
+		}
 	}
 
-	//fmt.Println(string(html))
+	// fmt.Println(string(html))
 }
